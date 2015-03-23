@@ -68,21 +68,20 @@ def inner_process(job):
   # Parse the arguments
   elm_range, fname, params, args, ans_in = job
 
-  # always need this
+  # import Map and Reduce
   from importlib import import_module
   MR = import_module(args.mapreduce)
+  # and the file reader
+  FR = import_module(args.filereader)
 
   # Create 'empty' answer dictionary
   from copy import deepcopy
   res = ans_in
-  #res = deepcopy(ans_in)
   ans = deepcopy(ans_in)
 
   # Open the data file
-  from interfaces.nek.files import NekFile
-  input_file = NekFile(fname)
-  #res['time'] = input_file.time
-  print("Processed {:s}".format(fname))
+  input_file = FR.DefaultFileReader(fname)
+  print("Processing {:s}".format(fname))
 
   # Loop over maps and local reduces
   for pos in range(elm_range[0], elm_range[1], args.block):
