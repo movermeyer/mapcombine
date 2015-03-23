@@ -16,10 +16,7 @@ def outer_process(job):
 
   # Initialize the MapReduce data with base cases
   # Returns job list to pass to map
-  jobs = MR.MR_init(args, params, frame)
-  # Copy a base case in which to reduce the results
-  from copy import deepcopy
-  ans = deepcopy(jobs[0][4])
+  jobs, base = MR.MR_init(args, params, frame)
 
   # Map!
   import time as time_
@@ -36,28 +33,19 @@ def outer_process(job):
   # Reduce!
   ttime = time_.time()
   for r in results:
-    MR.reduce_(ans, r)
+    MR.reduce_(base, r)
   if args.thread >= 2:
     p.close()
   if args.verbose:
     print('  Reduce took {:f}s on {:d} processes'.format(time_.time()-ttime, args.thread))
 
-  ans["frame"] = frame
-
+  base["frame"] = frame
   # Analysis! 
-  post = import_module(args.post)
-  post.post_frame(ans, params, args)
-  post.plot_frame(ans, params, args)
+  if args.post is not None:
+    post = import_module(args.post)
+    post.post_frame(base, params, args)
 
-  # Save the results to file!
-  from chest import Chest
-  cpath = '{:s}-chest-{:03d}'.format(args.name, frame)
-  c = Chest(path=cpath)
-  for key in ans.keys():
-    c[ans['time'], key] = ans[key]
-  c.flush()
-
-  return cpath
+  return base
 
 
 def inner_process(job):
@@ -71,8 +59,6 @@ def inner_process(job):
   # import Map and Reduce
   from importlib import import_module
   MR = import_module(args.mapreduce)
-  # and the file reader
-  FR = import_module(args.filereader)
 
   # Create 'empty' answer dictionary
   from copy import deepcopy
@@ -80,7 +66,11 @@ def inner_process(job):
   ans = deepcopy(ans_in)
 
   # Open the data file
-  input_file = FR.DefaultFileReader(fname)
+  if args.filereader is not None:
+    FR = import_module(args.filereader)
+    input_file = FR.DefaultFileReader(fname)
+  else:
+    input_file = open(fname, 'r')
   print("Processing {:s}".format(fname))
 
   # Loop over maps and local reduces
