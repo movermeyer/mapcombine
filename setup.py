@@ -23,4 +23,6 @@ setup(name='mapcombine',
       license='MIT',
       keywords='MapReduce',
       packages=['mapcombine'],
+      long_description=(open('README.rst').read() if exists('README.rst')
+                        else ''),
       zip_safe=True)
