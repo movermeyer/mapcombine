@@ -54,7 +54,7 @@ def inner_process(job):
   """
   
   # Parse the arguments
-  elm_range, fname, params, args, ans_in = job
+  elm_range, params, args, ans_in = job
 
   # import Map and Reduce
   from importlib import import_module
@@ -65,25 +65,16 @@ def inner_process(job):
   res = ans_in
   ans = deepcopy(ans_in)
 
-  # Open the data file
-  if args.filereader is not None:
-    FR = import_module(args.filereader)
-    input_file = FR.DefaultFileReader(fname)
-  else:
-    input_file = open(fname, 'r')
-  print("Processing {:s}".format(fname))
-
   # Loop over maps and local reduces
   for pos in range(elm_range[0], elm_range[1], args.block):
     # make sure we don't read past this thread's range
     nelm_to_read = min(args.block, elm_range[1] - pos)
 
     # All the work is here!
-    MR.map_(input_file, pos, nelm_to_read, params, ans)
+    MR.map_(pos, nelm_to_read, params, ans, elm_range[0] + nelm_to_read == elm_range[1])
 
     # This reduce is more of a combiner
     MR.reduce_(res, ans)
 
-  input_file.close()
   return res
 
