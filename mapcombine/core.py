@@ -71,7 +71,7 @@ def inner_process(job):
     nelm_to_read = min(args.block, elm_range[1] - pos)
 
     # All the work is here!
-    MR.map_(pos, nelm_to_read, params, ans, elm_range[0] + nelm_to_read == elm_range[1])
+    MR.map_(pos, nelm_to_read, params, ans, pos + nelm_to_read == elm_range[1])
 
     # This reduce is more of a combiner
     MR.reduce_(res, ans)
