@@ -12,11 +12,16 @@ def outer_process(job):
 
   # always need these
   from importlib import import_module
-  MR = import_module(args.mapreduce)
+  if args.MR_init is None:
+    MR = import_module(args.mapreduce)
+    args.MR_init = MR.MR_init
+  if args.reduce is None:
+    MR = import_module(args.mapreduce)
+    args.reduce = MR.reduce_
 
   # Initialize the MapReduce data with base cases
   # Returns job list to pass to map
-  jobs, base = MR.MR_init(args, params, frame)
+  jobs, base = args.MR_init(args, params, frame)
 
   # Map!
   import time as time_
@@ -33,7 +38,7 @@ def outer_process(job):
   # Reduce!
   ttime = time_.time()
   for r in results:
-    MR.reduce_(base, r)
+    args.reduce(base, r)
   if args.thread >= 2:
     p.close()
   if args.verbose:
@@ -58,7 +63,10 @@ def inner_process(job):
 
   # import Map and Reduce
   from importlib import import_module
-  MR = import_module(args.mapreduce)
+  if args.map is None:
+    args.map = import_module(args.mapreduce).map_
+  if args.reduce is None:
+    args.reduce = import_module(args.mapreduce).reduce_
 
   # Create 'empty' answer dictionary
   from copy import deepcopy
@@ -71,10 +79,10 @@ def inner_process(job):
     nelm_to_read = min(args.block, elm_range[1] - pos)
 
     # All the work is here!
-    MR.map_(pos, nelm_to_read, params, ans, pos + nelm_to_read == elm_range[1])
+    args.map(pos, nelm_to_read, params, ans, pos + nelm_to_read == elm_range[1])
 
     # This reduce is more of a combiner
-    MR.reduce_(res, ans)
+    args.reduce(res, ans)
 
   return res
 

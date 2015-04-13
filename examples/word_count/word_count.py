@@ -5,6 +5,12 @@ from mapcombine import outer_process
 parser = ArgumentParser(description='MapCombine example')
 parser.add_argument('--mapreduce', default='MapReduce',
                     help="Module that implements map_ and reduce_")
+parser.add_argument('--MR_init', default=None,
+                    help="MR_init")
+parser.add_argument('--map', default=None,
+                    help="map")
+parser.add_argument('--reduce', default=None,
+                    help="reduce")
 parser.add_argument('--filereader', default=None,
                     help="Module that implements DefaultFileReader")
 parser.add_argument('--post', default=None,
