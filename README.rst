@@ -13,8 +13,8 @@ Install
 
     pip install mapcombine
 
-.. |Version Status| image:: https://pypip.in/v/mapcombine/badge.png
+.. |Version Status| image:: https://img.shields.io/pypi/v/mapcombine.svg
    :target: https://pypi.python.org/pypi/mapcombine/
-.. |Downloads| image:: https://pypip.in/d/mapcombine/badge.png
+.. |Downloads| image:: https://img.shields.io/pypi/dm/mapcombine.svg
    :target: https://pypi.python.org/pypi/mapcombine/
 
